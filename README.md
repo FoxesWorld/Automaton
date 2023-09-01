@@ -50,3 +50,7 @@ _Part of FrozenLands_
 Supports recursiveness.
 To use it you need to initialise Automaton() and supply **ComponentManager** as an argument
 Don't forget to set width and height using setters to specify screen size
+``` 
+        automaton.setScreenHeight(playerInterface.getFpsCam().getHeight());
+        automaton.setScreenWidth(playerInterface.getFpsCam().getWidth());
+```
