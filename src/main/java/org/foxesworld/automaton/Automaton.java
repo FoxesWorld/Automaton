@@ -1,12 +1,13 @@
 package org.foxesworld.automaton;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.jme3.math.Vector2f;
 import com.jme3.math.Vector3f;
 import com.simsilica.lemur.Button;
 import com.simsilica.lemur.Container;
-import com.simsilica.lemur.Label;
 import com.simsilica.lemur.component.IconComponent;
 
 import java.util.HashMap;
@@ -35,7 +36,7 @@ public class Automaton extends ComponentManager {
 
         if (json.has("children")) {
             JsonArray children = json.getAsJsonArray("children");
-            Map<String, Object> typeValues = new HashMap<>();
+            Map<String, Object> typeValues;
             for (JsonElement childElement : children) {
                 JsonObject childJson = childElement.getAsJsonObject();
                 if (childJson.has("type")) {
@@ -46,26 +47,31 @@ public class Automaton extends ComponentManager {
                             container.addChild(nestedContainer);
                             break;
                         case "button":
-                            //WIP
                             String[][] buttonValues = new String[][]{
                                     {"text", "String"},
                                     {"id", "String"},
                                     {"icon", "String"}
                             };
-                            typeValues = parsetypeValues(buttonValues, childJson);
+                            typeValues = parseTypeValues(buttonValues, childJson);
                             Button button = container.addChild(new Button((String) typeValues.get("text")));
                             break;
                         case "label":
                             String[][] labelValues = new String[][]{
                                     {"text", "String"},
                                     {"id", "String"},
-                                    {"icon", "String"}
+                                    {"fontSize", "Float"},
+                                    {"icon", "String"},
+                                    {"iconSize", "String"}
                             };
-                            typeValues = parsetypeValues(labelValues, childJson);
+                            typeValues = parseTypeValues(labelValues, childJson);
                             IdentifiableLabel label = componentManager.addLabel((String) typeValues.get("text"), (String) typeValues.get("id"), container);
                             if (childJson.has("icon")) {
-                                label.getLabel().setIcon(new IconComponent((String) typeValues.get("icon")));
+                                IconComponent iconPic = new IconComponent((String) typeValues.get("icon"));
+                                String[] iconSize = ((String) typeValues.get("iconSize")).split(",");
+                                iconPic.setIconSize(new Vector2f(Float.valueOf(iconSize[0]), Float.valueOf(iconSize[1])));
+                                label.getLabel().setIcon(iconPic);
                             }
+                            label.getLabel().setFontSize((Float) typeValues.get("fontSize"));
                             break;
                         case "progressbar":
                             String[][] progressBarValues = new String[][]{
@@ -73,7 +79,7 @@ public class Automaton extends ComponentManager {
                                     {"text", "String"},
                                     {"value", "Float"}
                             };
-                            typeValues = parsetypeValues(progressBarValues, childJson);
+                            typeValues = parseTypeValues(progressBarValues, childJson);
                             IdentifiableProgressBar progressBar = componentManager.addProgressBar((String) typeValues.get("id"), (Float) typeValues.get("value"), container);
                             progressBar.getProgressBar().setMessage((String) typeValues.get("text"));
                             break;
@@ -128,25 +134,39 @@ public class Automaton extends ComponentManager {
         return position;
     }
 
-    private  Map<String, Object> parsetypeValues(String[][] elArray, JsonObject childJson){
+    private Map<String, Object> parseTypeValues(String[][] elArray, JsonObject childJson) {
         Map<String, Object> typeValues = new HashMap<>();
-        for(String[] val: elArray){
-            Object thisObject = new Object();
+        for (String[] val : elArray) {
             String field = val[0];
-            String dataType = val[1];
-            switch (dataType){
-                case "String":
-                    thisObject = childJson.has(field) ? childJson.get(field).getAsString() : "";
-                    break;
-
-                case "Float":
-                    thisObject = childJson.has(field) ? childJson.get(field).getAsFloat() : 0f;
-                    break;
-            }
-
-            typeValues.put(field, thisObject);
+            Class<?> dataType = getType(val[1]);
+            Object value = childJson.has(field) ? new Gson().fromJson(childJson.get(field), dataType) : getDefault(dataType);
+            typeValues.put(field, value);
         }
         return typeValues;
+    }
+
+    private Class<?> getType(String typeName) {
+        switch (typeName) {
+            case "String":
+                return String.class;
+            case "Float":
+                return Float.class;
+            case "Boolean":
+                return Boolean.class;
+            default:
+                throw new IllegalArgumentException("Unsupported data type: " + typeName);
+        }
+    }
+
+    private Object getDefault(Class<?> dataType) {
+        if (dataType.equals(String.class)) {
+            return "";
+        } else if (dataType.equals(Float.class)) {
+            return 0f;
+        } else if (dataType.equals(Boolean.class)) {
+            return true;
+        }
+        throw new IllegalArgumentException("Unsupported data type: " + dataType.getName());
     }
 
     public void setScreenWidth(float screenWidth) {

@@ -5,6 +5,8 @@ import com.simsilica.lemur.Label;
 public class IdentifiableLabel extends ComponentManager implements LabelInterface {
 
     private String id;
+
+    private Boolean enabled;
     private Label label;
 
     public IdentifiableLabel(String id, Label label) {
