@@ -2,6 +2,7 @@ package org.foxesworld.automaton;
 
 import com.simsilica.lemur.Container;
 import com.simsilica.lemur.Label;
+import com.simsilica.lemur.ProgressBar;
 import com.simsilica.lemur.style.ElementId;
 
 import java.util.HashMap;
@@ -10,14 +11,37 @@ import java.util.Map;
 public class ComponentManager {
 
     private Map<String, Label> labelMap = new HashMap<>();
+    private Map<String, IdentifiableProgressBar> progressBarMap = new HashMap<>();
     public ComponentManager() {}
 
-    public Label addLabel(String text, String elementIdText, Container parent) {
+    protected IdentifiableLabel addLabel(String text, String elementIdText, Container parent) {
         ElementId elementId = new ElementId(elementIdText);
         Label label = new Label(text, elementId);
-        labelMap.put(elementIdText, label);
         parent.addChild(label);
-        return label;
+
+        IdentifiableLabel identifiableLabel = new IdentifiableLabel(elementIdText, label);
+        labelMap.put(elementIdText, label);
+
+        return identifiableLabel;
+    }
+
+    protected IdentifiableProgressBar addProgressBar(String id, float initialValue, Container parent) {
+        ProgressBar progressBar = new ProgressBar();
+        progressBar.setProgressValue(initialValue);
+        parent.addChild(progressBar);
+
+        IdentifiableProgressBar identifiableProgressBar = new IdentifiableProgressBar(id, progressBar);
+        progressBarMap.put(id, identifiableProgressBar);
+
+        return identifiableProgressBar;
+    }
+
+    public void updateProgressBarValue(String id, float newValue) {
+        IdentifiableProgressBar identifiableProgressBar = progressBarMap.get(id);
+        if (identifiableProgressBar != null) {
+            ProgressBar progressBar = identifiableProgressBar.getProgressBar();
+            progressBar.setProgressValue(newValue);
+        }
     }
 
     public Label getLabelByElementId(String elementIdText) {

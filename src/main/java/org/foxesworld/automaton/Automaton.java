@@ -7,10 +7,9 @@ import com.jme3.math.Vector3f;
 import com.simsilica.lemur.Button;
 import com.simsilica.lemur.Container;
 import com.simsilica.lemur.Label;
-import com.simsilica.lemur.ProgressBar;
 import com.simsilica.lemur.component.IconComponent;
 
-public class Automaton {
+public class Automaton extends ComponentManager {
 
     private float screenWidth = 256;
     private float screenHeight = 128;
@@ -46,13 +45,14 @@ public class Automaton {
                             Button button = container.addChild(new Button(childJson.get("text").getAsString()));
                             break;
                         case "label":
-                            Label label = componentManager.addLabel(childJson.get("text").getAsString(), childJson.get("id").getAsString(), container);
+                            IdentifiableLabel label = componentManager.addLabel(childJson.get("text").getAsString(), childJson.get("id").getAsString(), container);
                             if (childJson.has("icon")) {
-                                label.setIcon(new IconComponent(childJson.get("icon").getAsString()));
+                                label.getLabel().setIcon(new IconComponent(childJson.get("icon").getAsString()));
                             }
                             break;
                         case "progressbar":
-                            ProgressBar progressBar = container.addChild(new ProgressBar());
+                            IdentifiableProgressBar progressBar = componentManager.addProgressBar(childJson.get("id").getAsString(), childJson.get("value").getAsFloat(), container);
+                            progressBar.getProgressBar().setMessage(childJson.get("text").getAsString());
                             break;
                         case "icon":
                             String iconPath = childJson.get("path").getAsString();
