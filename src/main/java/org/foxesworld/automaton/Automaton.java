@@ -9,6 +9,9 @@ import com.simsilica.lemur.Container;
 import com.simsilica.lemur.Label;
 import com.simsilica.lemur.component.IconComponent;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class Automaton extends ComponentManager {
 
     private float screenWidth = 256;
@@ -32,6 +35,7 @@ public class Automaton extends ComponentManager {
 
         if (json.has("children")) {
             JsonArray children = json.getAsJsonArray("children");
+            Map<String, Object> typeValues = new HashMap<>();
             for (JsonElement childElement : children) {
                 JsonObject childJson = childElement.getAsJsonObject();
                 if (childJson.has("type")) {
@@ -42,17 +46,36 @@ public class Automaton extends ComponentManager {
                             container.addChild(nestedContainer);
                             break;
                         case "button":
-                            Button button = container.addChild(new Button(childJson.get("text").getAsString()));
+                            //WIP
+                            String[][] buttonValues = new String[][]{
+                                    {"text", "String"},
+                                    {"id", "String"},
+                                    {"icon", "String"}
+                            };
+                            typeValues = parsetypeValues(buttonValues, childJson);
+                            Button button = container.addChild(new Button((String) typeValues.get("text")));
                             break;
                         case "label":
-                            IdentifiableLabel label = componentManager.addLabel(childJson.get("text").getAsString(), childJson.get("id").getAsString(), container);
+                            String[][] labelValues = new String[][]{
+                                    {"text", "String"},
+                                    {"id", "String"},
+                                    {"icon", "String"}
+                            };
+                            typeValues = parsetypeValues(labelValues, childJson);
+                            IdentifiableLabel label = componentManager.addLabel((String) typeValues.get("text"), (String) typeValues.get("id"), container);
                             if (childJson.has("icon")) {
-                                label.getLabel().setIcon(new IconComponent(childJson.get("icon").getAsString()));
+                                label.getLabel().setIcon(new IconComponent((String) typeValues.get("icon")));
                             }
                             break;
                         case "progressbar":
-                            IdentifiableProgressBar progressBar = componentManager.addProgressBar(childJson.get("id").getAsString(), childJson.get("value").getAsFloat(), container);
-                            progressBar.getProgressBar().setMessage(childJson.get("text").getAsString());
+                            String[][] progressBarValues = new String[][]{
+                                    {"id", "String"},
+                                    {"text", "String"},
+                                    {"value", "Float"}
+                            };
+                            typeValues = parsetypeValues(progressBarValues, childJson);
+                            IdentifiableProgressBar progressBar = componentManager.addProgressBar((String) typeValues.get("id"), (Float) typeValues.get("value"), container);
+                            progressBar.getProgressBar().setMessage((String) typeValues.get("text"));
                             break;
                         case "icon":
                             String iconPath = childJson.get("path").getAsString();
@@ -103,6 +126,27 @@ public class Automaton extends ComponentManager {
                 throw new IllegalArgumentException("Invalid alignment value: " + alignment);
         }
         return position;
+    }
+
+    private  Map<String, Object> parsetypeValues(String[][] elArray, JsonObject childJson){
+        Map<String, Object> typeValues = new HashMap<>();
+        for(String[] val: elArray){
+            Object thisObject = new Object();
+            String field = val[0];
+            String dataType = val[1];
+            switch (dataType){
+                case "String":
+                    thisObject = childJson.has(field) ? childJson.get(field).getAsString() : "";
+                    break;
+
+                case "Float":
+                    thisObject = childJson.has(field) ? childJson.get(field).getAsFloat() : 0f;
+                    break;
+            }
+
+            typeValues.put(field, thisObject);
+        }
+        return typeValues;
     }
 
     public void setScreenWidth(float screenWidth) {
