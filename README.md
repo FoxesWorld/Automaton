@@ -3,6 +3,8 @@ Lemur form from JSON
 
 _Part of FrozenLands_
 
+<img src=".github/image.png" height="512" width="1024" alt="icon"/>
+
 # Sample **JSON**
 ```
 {
