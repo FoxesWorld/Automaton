@@ -1,4 +1,4 @@
-# Automaton ![Java Badge](https://img.shields.io/static/v1?label=Powered%20by&message=Java&color=darkorange&style=for-the-badge) <img src="https://img.shields.io/badge/version-1.2.0--Alpha-orange" alt="version - 1.2.0">
+# Automaton ![Java Badge](https://img.shields.io/static/v1?label=Powered%20by&message=Java&color=darkorange&style=for-the-badge) <img src="https://img.shields.io/badge/version-1.2.6--Alpha-orange" alt="version - 1.2.6">
 Lemur form from JSON
 
 _Part of FrozenLands_

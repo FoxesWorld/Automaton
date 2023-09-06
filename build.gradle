@@ -3,7 +3,7 @@ plugins {
 }
 
 group 'org.foxesworld'
-version '1.2.0-Alpha'
+version '1.2.6'
 
 repositories {
     mavenCentral()
@@ -11,6 +11,8 @@ repositories {
 
 dependencies {
     implementation files('lib/gson.jar')
+    implementation files('lib/xpp3.jar')
+    implementation files('lib/jme3/jme3-core.jar')
     implementation 'com.simsilica:lemur-proto:1.13.0'
     implementation group: 'com.simsilica', name: 'lemur', version: '1.16.0'
 }

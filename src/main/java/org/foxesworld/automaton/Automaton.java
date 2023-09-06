@@ -9,6 +9,10 @@ import com.jme3.math.Vector3f;
 import com.simsilica.lemur.Button;
 import com.simsilica.lemur.Container;
 import com.simsilica.lemur.component.IconComponent;
+import org.foxesworld.automaton.compoonent.ComponentID;
+import org.foxesworld.automaton.compoonent.ComponentManager;
+import org.foxesworld.automaton.compoonent.IdentifiableLabel;
+import org.foxesworld.automaton.compoonent.IdentifiableProgressBar;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -24,10 +28,30 @@ public class Automaton extends ComponentManager {
     }
 
     public Container createContainerFromJson(JsonObject json) {
-
         float floatContainer = json.has("floatContainer") ? json.get("floatContainer").getAsFloat() : 0.5f;
-        int minWidth = json.has("width") ? json.get("width").getAsInt() : 200;
-        int minHeight = json.has("height") ? json.get("height").getAsInt() : 150;
+
+        int minWidth = 200;
+        if (json.has("width")) {
+            String widthValue = json.get("width").getAsString();
+            if (widthValue.endsWith("%")) {
+                float percent = Float.parseFloat(widthValue.substring(0, widthValue.length() - 1)) / 100f;
+                minWidth = (int) (screenWidth * percent);
+            } else {
+                minWidth = json.get("width").getAsInt();
+            }
+        }
+
+        int minHeight = 150;
+        if (json.has("height")) {
+            String heightValue = json.get("height").getAsString();
+            if (heightValue.endsWith("%")) {
+                float percent = Float.parseFloat(heightValue.substring(0, heightValue.length() - 1)) / 100f;
+                minHeight = (int) (screenHeight * percent);
+            } else {
+                minHeight = json.get("height").getAsInt();
+            }
+        }
+
         String verticalAlignment = json.has("verticalAlignment") ? json.get("verticalAlignment").getAsString() : "center";
         String horizontalAlignment = json.has("horizontalAlignment") ? json.get("horizontalAlignment").getAsString() : "center";
 
@@ -40,13 +64,13 @@ public class Automaton extends ComponentManager {
             for (JsonElement childElement : children) {
                 JsonObject childJson = childElement.getAsJsonObject();
                 if (childJson.has("type")) {
-                    String type = childJson.get("type").getAsString();
+                    ComponentID type = ComponentID.valueOf(childJson.get("type").getAsString().toUpperCase());
                     switch (type) {
-                        case "container":
+                        case CONTAINER:
                             Container nestedContainer = createContainerFromJson(childJson);
                             container.addChild(nestedContainer);
                             break;
-                        case "button":
+                        case BUTTON:
                             String[][] buttonValues = new String[][]{
                                     {"text", "String"},
                                     {"id", "String"},
@@ -55,7 +79,7 @@ public class Automaton extends ComponentManager {
                             typeValues = parseTypeValues(buttonValues, childJson);
                             Button button = container.addChild(new Button((String) typeValues.get("text")));
                             break;
-                        case "label":
+                        case LABEL:
                             String[][] labelValues = new String[][]{
                                     {"text", "String"},
                                     {"id", "String"},
@@ -73,7 +97,7 @@ public class Automaton extends ComponentManager {
                             }
                             label.getLabel().setFontSize((Float) typeValues.get("fontSize"));
                             break;
-                        case "progressbar":
+                        case PROGRESSBAR:
                             String[][] progressBarValues = new String[][]{
                                     {"id", "String"},
                                     {"text", "String"},
@@ -83,11 +107,10 @@ public class Automaton extends ComponentManager {
                             IdentifiableProgressBar progressBar = componentManager.addProgressBar((String) typeValues.get("id"), (Float) typeValues.get("value"), container);
                             progressBar.getProgressBar().setMessage((String) typeValues.get("text"));
                             break;
-                        case "icon":
+                        case ICON:
                             String iconPath = childJson.get("path").getAsString();
                             IconComponent icon = new IconComponent(iconPath);
                             break;
-                        // Add additional cases for other types
                     }
 
                     if (childJson.has("verticalAlignment") && childJson.has("horizontalAlignment")) {
@@ -107,6 +130,7 @@ public class Automaton extends ComponentManager {
 
         return container;
     }
+
 
     private Vector3f calculatePosition(float screenWidth, float screenHeight, float containerWidth, float containerHeight, String horizontalAlignment, String verticalAlignment) {
         float xPosition = calculateAlignment(screenWidth, containerWidth, horizontalAlignment);
