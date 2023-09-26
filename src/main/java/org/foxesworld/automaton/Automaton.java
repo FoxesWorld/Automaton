@@ -9,10 +9,10 @@ import com.jme3.math.Vector3f;
 import com.simsilica.lemur.Button;
 import com.simsilica.lemur.Container;
 import com.simsilica.lemur.component.IconComponent;
-import org.foxesworld.automaton.compoonent.ComponentID;
-import org.foxesworld.automaton.compoonent.ComponentManager;
-import org.foxesworld.automaton.compoonent.IdentifiableLabel;
-import org.foxesworld.automaton.compoonent.IdentifiableProgressBar;
+import org.foxesworld.automaton.elements.ComponentID;
+import org.foxesworld.automaton.elements.components.IdentifiableLabel;
+import org.foxesworld.automaton.elements.components.IdentifiableProgressBar;
+import org.foxesworld.automaton.elements.components.ComponentManager;
 
 import java.util.HashMap;
 import java.util.Map;

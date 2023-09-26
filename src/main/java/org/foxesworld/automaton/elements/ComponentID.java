@@ -1,4 +1,4 @@
-package org.foxesworld.automaton.compoonent;
+package org.foxesworld.automaton.elements;
 
 public enum ComponentID {
     CONTAINER,
